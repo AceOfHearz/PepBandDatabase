@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pep Band Search</title>
+  <style>
+    /* Basic styling for demonstration purposes */
+    #searchInput {
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    #result {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+    <img src="C:\Users\jjmac\OneDrive\PepBandProject\Mount-St.-Marys-Mountaineers-logo.png" alt="Mount St. Mary's Mountaineers Logo" style="width: 200px; height: auto;">
+  <input type="text" id="searchInput" placeholder="Search by name" onkeyup="search()">
+  <div id="result"></div>
+
+  <script>
+    const instruments = [
+      { name: "Trumpet 1", serialNumber: "SB20622001" },
+      { name: "Trumpet 2", serialNumber: "SB20622002" },
+      { name: "Trumpet 3", serialNumber: "SB20622003" }
+    ];
+
+    function search() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = ''; // Clear previous results
+
+      const filteredInstruments = instruments.filter(instrument =>
+        instrument.name.toLowerCase().includes(searchTerm)
+      );
+
+      if (searchTerm === '') {
+        resultDiv.innerHTML = ''; // Clear results if search input is empty
+        return;
+      }
+
+      if (filteredInstruments.length === 0) {
+        resultDiv.innerHTML = 'No matching instruments found.';
+      } else {
+        const instrumentList = document.createElement("ul");
+        filteredInstruments.forEach(instrument => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+            <strong>Name:</strong> ${instrument.name}<br>
+            <strong>Serial Number:</strong> ${instrument.serialNumber}<br><br>
+          `;
+          instrumentList.appendChild(listItem);
+        });
+        resultDiv.appendChild(instrumentList);
+      }
+    }
+  </script>
+</body>
+</html>
