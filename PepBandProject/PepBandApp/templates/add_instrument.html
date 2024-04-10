@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Instrument</title>
+</head>
+<body>
+    <h1>Add Instrument</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ AddInstrumentForm }}
+        <button type="submit">Add Instrument</button>
+    </form>
+</body>
+</html>

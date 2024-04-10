@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Delete Student</title>
+    <title>Delete Instrument</title>
 </head>
 <body>
-    <h1>Delete Student</h1>
-    <p>Are you sure you want to delete {{ student.name }}?</p>
+    <h1>Delete Instrument</h1>
+    <p>Are you sure you want to delete {{ instrument.name }}?</p>
     <form method="post">
         {% csrf_token %}
         <button type="submit">Delete</button>

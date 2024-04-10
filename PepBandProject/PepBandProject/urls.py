@@ -1,31 +1,17 @@
-"""
-URL configuration for PepBandProject project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from PepBandProject.PepBandApp.views import add_student, delete_student, edit_student
-
+from django.views.generic import RedirectView
+from django.contrib.auth.views import LogoutView
+from PepBandApp import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('', RedirectView.as_view(url='/login/')),  # Redirect root to login page
+    path('login/', views.user_login, name='login'),
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('add_student/', add_student, name='add_student'),
-    path('edit_student/<int:student_id>/', edit_student, name='edit_student'),
-    path('delete_student/<int:student_id>/', delete_student, name='delete_student'),
+    path('add_student/', views.add_student, name='add_student'),
+    path('edit_student/<int:student_id>/', views.edit_student, name='edit_student'),
+    path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
+    path('add_instrument/', views.add_instrument, name='add_instrument'),
+    path('delete_instrument/<int:instrument_id>/', views.delete_instrument, name='delete_instrument'),
+    path('<int:student_id>/<str:instrument_id>/', views.assign_instrument, name='assign_instrument'),
 ]
-
