@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unassign Instrument</title>
+</head>
+<body>
+    <h1>Unassign Instrument</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="serial_number">Enter Serial Number:</label><br>
+        <input type="text" id="serial_number" name="serial_number" required><br>
+        <button type="submit">Unassign Instrument</button>
+    </form>
+</body>
+</html>

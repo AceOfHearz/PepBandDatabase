@@ -1,9 +1,8 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import InstrumentForm, StudentForm
 from .models import Student, Instrument
+from .forms import AddInstrumentForm, AddStudentForm, DeleteInstrumentForm, AssignInstrumentForm, DeleteStudentForm, StudentForm, UnassignInstrumentForm
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse, JsonResponse
 
 def user_login(request):
     if request.method == 'POST':
@@ -18,71 +17,108 @@ def user_login(request):
             return render(request, 'login.html', {'error': 'Invalid username or password'})
     else:
         return render(request, 'login.html')
+
     
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    students = Student.objects.all()
+    instruments = Instrument.objects.all()
+    context = {
+        'students': students,
+        'instruments': instruments
+    }
+    return render(request, 'dashboard.html', context)
 
 def add_student(request):
     if request.method == 'POST':
-        form = StudentForm(request.POST)
+        form = AddStudentForm(request.POST)
         if form.is_valid():
-            form.save()
+            # Process the data in form.cleaned_data
+            # Assuming Student is the model in your models.py
+            student = Student(
+                name=form.cleaned_data['name'],
+                student_id=form.cleaned_data['student_id'],
+                email=form.cleaned_data['email'],
+                phone_number=form.cleaned_data['phone_number']
+            )
+            student.save()
             return redirect('dashboard')
     else:
-        form = StudentForm()
+        form = AddStudentForm()
     return render(request, 'add_student.html', {'form': form})
 
-def edit_student(request, student_id):
-    student = Student.objects.get(pk=student_id)
+def delete_student(request):
     if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard')
-    else:
-        form = StudentForm(instance=student)
-    return render(request, 'edit_student.html', {'form': form, 'student': student})
-
-def delete_student(request, student_id):
-    student = Student.objects.get(pk=student_id)
-    if request.method == 'POST':
-        student.delete()
-        return redirect('dashboard')
-    return render(request, 'delete_student.html', {'student': student})
+        student_id = request.POST.get('student_id')
+        if student_id:
+            try:
+                student = Student.objects.get(student_id=student_id)
+                student.delete()
+                return redirect('dashboard')
+            except Student.DoesNotExist:
+                pass  # Student not found, handle this case as needed
+    return render(request, 'delete_student.html')
 
 def add_instrument(request):
     if request.method == 'POST':
-        form = InstrumentForm(request.POST)
+        form = AddInstrumentForm(request.POST)
         if form.is_valid():
-            form.save()
+            name = form.cleaned_data['name']
+            serial_number = form.cleaned_data['serial_number']
+            assigned_student_id = form.cleaned_data['assigned_student']
+            if assigned_student_id:
+                assigned_student = Student.objects.get(student_id=assigned_student_id)
+            else:
+                assigned_student = None
+            instrument = Instrument(name=name, serial_number=serial_number, assigned_student=assigned_student)
+            instrument.save()
             return redirect('dashboard')
     else:
-        form = InstrumentForm()
+        form = AddInstrumentForm()
     return render(request, 'add_instrument.html', {'form': form})
 
-def delete_instrument(request, instrument_id):
-    try:
-        instrument = Instrument.objects.get(pk=instrument_id)
-    except Instrument.DoesNotExist:
-        return HttpResponse("Instrument does not exist.", status=404)
-
+def delete_instrument(request):
     if request.method == 'POST':
-        instrument.delete()
-        return redirect('dashboard')
-    return render(request, 'delete_instrument.html', {'instrument': instrument})
+        serial_number = request.POST.get('serial_number_delete')
+        if serial_number:
+            try:
+                instrument = Instrument.objects.get(serial_number=serial_number)
+                instrument.delete()
+                return redirect('dashboard')
+            except Instrument.DoesNotExist:
+                pass  # Instrument not found, handle this case as needed
+    return render(request, 'delete_instrument.html')
 
-def assign_instrument(request, student_id, instrument_id):
-    print(f"Received request to assign instrument '{instrument_id}' to student '{student_id}'")
-    try:
-        student = Student.objects.get(pk=student_id)
-        print(f"Student found: {student}")
-        instrument = Instrument.objects.get(serial_number=instrument_id)
-        print(f"Instrument found: {instrument}")
-        instrument.student = student
-        instrument.save()
-        return JsonResponse({'message': 'Instrument assigned successfully'})
-    except Student.DoesNotExist:
-        return JsonResponse({'error': 'Student not found'}, status=404)
-    except Instrument.DoesNotExist:
-        return JsonResponse({'error': 'Instrument not found'}, status=404)
+def assign_instrument(request):
+    if request.method == 'POST':
+        form = AssignInstrumentForm(request.POST)
+        if form.is_valid():
+            student_id = form.cleaned_data['student_id']
+            serial_number = form.cleaned_data['serial_number']
+            try:
+                student = Student.objects.get(student_id=student_id)
+                instrument = Instrument.objects.get(serial_number=serial_number)
+                instrument.assigned_student = student
+                instrument.save()
+                return redirect('dashboard')
+            except (Student.DoesNotExist, Instrument.DoesNotExist):
+                pass  # Handle the case where student or instrument does not exist
+    else:
+        form = AssignInstrumentForm()
+    return render(request, 'assign_instrument.html', {'form': form})
+
+def unassign_instrument(request):
+    if request.method == 'POST':
+        form = UnassignInstrumentForm(request.POST)
+        if form.is_valid():
+            serial_number = form.cleaned_data['serial_number']
+            try:
+                instrument = Instrument.objects.get(serial_number=serial_number)
+                instrument.assigned_student = None
+                instrument.save()
+                return redirect('dashboard')
+            except Instrument.DoesNotExist:
+                pass  # Instrument not found, handle this case as needed
+    else:
+        form = UnassignInstrumentForm()
+    return render(request, 'unassign_instrument.html', {'form': form})

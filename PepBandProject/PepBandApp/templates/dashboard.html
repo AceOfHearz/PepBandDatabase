@@ -1,331 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <style>
-    #container {
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start;
-    }
-    #studentSearch {
-      width: 40%;
-      padding-right: 20px;
-    }
-    #instrumentSearch {
-      width: 40%;
-    }
-    .searchInput {
-      padding: 5px;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-    .result {
-      margin-top: 10px;
-    }
-    ul {
-      list-style-type: none;
-      padding-left: 0;
-    }
-  </style>
+    <title>Dashboard</title>
 </head>
 <body>
-  <h2>Welcome to the Dashboard</h2>
-  <div id="container">
-    <div id="studentActions">
-      <button onclick="addStudent()">Add Student</button>
-      <button onclick="removeStudent()">Delete Student</button>
+    <div>
+        <input type="text" id="student-search" placeholder="Search for student...">
+        <input type="text" id="instrument-search" placeholder="Search for instrument...">
     </div>
-    <div id="instrumentActions">
-      <button onclick="addInstrument()">Add Instrument</button>
-      <button onclick="deleteInstrument()">Delete Instrument</button>
-      <button onclick="assignInstrument()">Assign Instrument</button>
-    </div>
+    <!-- Add Student Button -->
+    <form method="post" action="{% url 'add_student' %}">
+       {% csrf_token %}
+        <input type="submit" value="Add Student">
+    </form>
+
+    <!-- Delete Student Button -->
+    <form method="post" action="{% url 'delete_student' %}">
+      {% csrf_token %}
+      <button type="submit">Delete Student</button>
+    </form>  
+    <!-- Add Instrument Button -->
+    <form method="post" action="{% url 'add_instrument' %}">
+      {% csrf_token %}
+       <input type="submit" value="Add Instrument">
+    </form>
+    <!-- Delete Instrument Button -->
+    <form method="post" action="{% url 'delete_instrument' %}">
+        {% csrf_token %}
+        <input type="submit" value="Delete Instrument">
+    </form>
+    <!-- Assign Instrument Button -->
+    <form method="post" action="{% url 'assign_instrument' %}">
+        {% csrf_token %}
+        <input type="submit" value="Assign Instrument">
+    </form>
+    <!-- Unassign Instrument Button -->
+    <form method="post" action="{% url 'unassign_instrument' %}">
+        {% csrf_token %}
+        <input type="submit" value="Unassign Instrument">
+    </form>
+    <div>
+      <table border="1">
+          <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+          </tr>
+          {% for student in students %}
+          <tr>
+              <td>{{ student.student_id }}</td>
+              <td>{{ student.name }}</td>
+              <td>{{ student.email }}</td>
+              <td>{{ student.phone_number }}</td>
+          </tr>
+          {% endfor %}
+      </table>
   </div>
-  <div id="studentSearch">
-    <h3>Student Search</h3>
-    <input type="text" id="studentSearchInput" class="searchInput" placeholder="Search by name" onkeyup="searchStudents()">
-    <div id="studentSearchResult" class="result"></div>
+  <div>
+      <table border="1">
+          <tr>
+              <th>Serial Number</th>
+              <th>Name</th>
+              <th>Assigned Student</th>
+          </tr>
+          {% for instrument in instruments %}
+          <tr>
+              <td>{{ instrument.serial_number }}</td>
+              <td>{{ instrument.name }}</td>
+              <td>{{ instrument.assigned_student }}</td>
+          </tr>
+          {% endfor %}
+      </table>
   </div>
-  <div id="instrumentSearch">
-    <h3>Instrument Search</h3>
-    <input type="text" id="instrumentSearchInput" class="searchInput" placeholder="Search by name" onkeyup="searchInstruments()">
-    <div id="instrumentSearchResult" class="result"></div>
-  </div>
-
-  <script>
-    const students = [
-      { name: "James McInerney", email: "j.j.mcinerney@email.msmary.edu", phone: "(301)-676-7471" , id: "7730781"},
-    ];
-
-    const instruments = [
-      { name: "Trumpet 1", serial_number: "SB20622001" },
-    ];
-
-    function searchStudents() {
-  const searchTerm = document.getElementById("studentSearchInput").value.toLowerCase();
-  const resultDiv = document.getElementById("studentSearchResult");
-  resultDiv.innerHTML = ''; // Clear previous results
-
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchTerm)
-  );
-
-  if (searchTerm === '') {
-    resultDiv.innerHTML = ''; // Clear results if search input is empty
-    return;
-  }
-
-  if (filteredStudents.length === 0) {
-    resultDiv.innerHTML = 'No matching students found.';
-  } else {
-    const studentList = document.createElement("ul");
-    filteredStudents.forEach(student => {
-      const listItem = document.createElement("li");
-      listItem.innerHTML = `
-        <strong>Name:</strong> ${student.name}<br>
-        <strong>ID:</strong> ${student.id}<br>
-        <strong>Email:</strong> ${student.email}<br>
-        <strong>Phone:</strong> ${student.phone}<br><br>
-      `;
-      studentList.appendChild(listItem);
-    });
-    resultDiv.appendChild(studentList);
-  }
-}
-
-    function searchInstruments() {
-      const searchTerm = document.getElementById("instrumentSearchInput").value.toLowerCase();
-      const resultDiv = document.getElementById("instrumentSearchResult");
-      resultDiv.innerHTML = ''; // Clear previous results
-
-      const filteredInstruments = instruments.filter(instrument =>
-        instrument.name.toLowerCase().includes(searchTerm)
-      );
-
-      if (searchTerm === '') {
-        resultDiv.innerHTML = ''; // Clear results if search input is empty
-        return;
-      }
-
-      if (filteredInstruments.length === 0) {
-        resultDiv.innerHTML = 'No matching instruments found.';
-      } else {
-        const instrumentList = document.createElement("ul");
-        filteredInstruments.forEach(instrument => {
-          const listItem = document.createElement("li");
-          listItem.innerHTML = `
-            <strong>Name:</strong> ${instrument.name}<br>
-            <strong>Serial Number:</strong> ${instrument.serial_number}<br><br>
-          `;
-          instrumentList.appendChild(listItem);
-        });
-        resultDiv.appendChild(instrumentList);
-      }
-    }
-
-    function addStudent() {
-  const id = prompt("Enter student's ID:");
-  const name = prompt("Enter student's name:");
-  const email = prompt("Enter student's email:");
-  const phone = prompt("Enter student's phone:");
-
-  if (id && name && email && phone) {
-    // Send a POST request to the server to add the student
-    fetch('/add_student/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
-      },
-      body: JSON.stringify({ id, name, email, phone }),
-    })
-      .then(response => {
-        if (response.ok) {
-          alert('Student added successfully!');
-          // Update the students array
-          const newStudent = { id, name, email, phone };
-          students.push(newStudent);
-          // Update the search results in the DOM
-          const searchTerm = document.getElementById("studentSearchInput").value.toLowerCase();
-          const filteredStudents = students.filter(student =>
-            student.name.toLowerCase().includes(searchTerm)
-          );
-          const resultDiv = document.getElementById("studentSearchResult");
-          resultDiv.innerHTML = ''; // Clear previous results
-          if (filteredStudents.length === 0) {
-            resultDiv.innerHTML = 'No matching students found.';
-          } else {
-            const studentList = document.createElement("ul");
-            filteredStudents.forEach(student => {
-              const listItem = document.createElement("li");
-              listItem.innerHTML = `
-                <strong>Name:</strong> ${student.name}<br>
-                <strong>ID:</strong> ${student.id}<br>
-                <strong>Email:</strong> ${student.email}<br>
-                <strong>Phone:</strong> ${student.phone}<br><br>
-              `;
-              studentList.appendChild(listItem);
-            });
-            resultDiv.appendChild(studentList);
-          }
-        } else {
-          alert('Failed to add student.');
-        }
-      })
-      .catch(error => console.error('Error:', error));
-  }
-}
-
-    function removeStudent() {
-  const student_id = prompt("Enter student's ID:");
-
-  if (student_id) {
-    // Find the index of the student with the given ID
-    const index = students.findIndex(student => student.id === student_id);
-
-    if (index !== -1) {
-      // Remove the student from the array
-      students.splice(index, 1);
-
-      // Update the search results in the DOM
-      const searchTerm = document.getElementById("studentSearchInput").value.toLowerCase();
-      const filteredStudents = students.filter(student =>
-        student.name.toLowerCase().includes(searchTerm)
-      );
-      const resultDiv = document.getElementById("studentSearchResult");
-      resultDiv.innerHTML = ''; // Clear previous results
-      if (filteredStudents.length === 0) {
-        resultDiv.innerHTML = 'No matching students found.';
-      } else {
-        const studentList = document.createElement("ul");
-        filteredStudents.forEach(student => {
-          const listItem = document.createElement("li");
-          listItem.innerHTML = `
-            <strong>Name:</strong> ${student.name}<br>
-            <strong>ID:</strong> ${student.id}<br>
-            <strong>Email:</strong> ${student.email}<br>
-            <strong>Phone:</strong> ${student.phone}<br><br>
-          `;
-          studentList.appendChild(listItem);
-        });
-        resultDiv.appendChild(studentList);
-      }
-
-      alert('Student removed successfully!');
-    } else {
-      alert('Student not found.');
-    }
-  }
-}
-
-    function addInstrument() {
-  const name = prompt("Enter instrument's name:");
-  const serial_number = prompt("Enter instrument's serial number:");
-
-  if (name && serial_number) {
-    // Send a POST request to the server to add the instrument
-    fetch('/add_instrument/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
-      },
-      body: JSON.stringify({ name, serial_number: serial_number }),
-    })
-      .then(response => {
-        if (response.ok) {
-          alert('Instrument added successfully!');
-          // Add the new instrument to the list of instruments displayed on the dashboard
-          const newInstrument = { name, serial_number };
-          instruments.push(newInstrument);
-          // Update the search results in the DOM
-          searchInstruments();
-        } else {
-          alert('Failed to add instrument.');
-        }
-      })
-      .catch(error => console.error('Error:', error));
-  }
-}
-
-    function deleteInstrument() {
-  const serial_number = prompt("Enter instrument's serial number:");
-
-  if (serial_number) {
-    // Find the index of the instrument with the given serial number
-    const index = instruments.findIndex(instrument => instrument.serial_number === serial_number);
-
-    if (index !== -1) {
-      // Remove the instrument from the array
-      instruments.splice(index, 1);
-
-      // Update the search results in the DOM
-      searchInstruments();
-
-      alert('Instrument removed successfully!');
-    } else {
-      alert('Instrument not found.');
-    }
-  }
-}
-
-function assignInstrument() {
-    const student_id = prompt("Enter student's ID:");
-    const serial_number = prompt("Enter instrument's serial number:");
-
-    if (student_id && serial_number) {
-        console.log('Student ID:', student_id);
-        console.log('Serial Number:', serial_number);
-
-        const url = `/assign_instrument/${student_id}/${encodeURIComponent(serial_number)}/`;
-
-        // Get CSRF token from the cookie
-        const csrftoken = getCookie('csrftoken');
-        console.log('CSRF Token:', csrftoken);
-
-        // Send a POST request to the server to assign the instrument to the student
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({}),
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert('Instrument assigned successfully!');
-                    window.location.reload(); // Reload the page to reflect the change
-                } else {
-                    // Check if response status is 400 (Bad Request) and show an appropriate message
-                    if (response.status === 400) {
-                        alert('Failed to assign instrument: Bad Request');
-                    } else {
-                        alert('Failed to assign instrument.');
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-}
-
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null; // Return null if cookie is not found
-}
-
-
-    function validatePhoneNumber(event) {
-      var charCode = event.which ? event.which : event.keyCode;
-      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-        event.preventDefault();
-      }
-    }
-  </script>
 </body>
 </html>

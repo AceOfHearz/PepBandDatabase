@@ -5,11 +5,11 @@
 </head>
 <body>
     <h1>Delete Instrument</h1>
-    <p>Are you sure you want to delete {{ instrument.name }}?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Delete</button>
-        <a href="{% url 'dashboard' %}">Cancel</a>
+        <label for="serial_number_delete">Enter Serial Number:</label><br>
+        <input type="text" id="serial_number_delete" name="serial_number_delete" required><br>
+        <input type="submit" value="Delete">
     </form>
 </body>
 </html>

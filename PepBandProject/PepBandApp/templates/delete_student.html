@@ -5,11 +5,11 @@
 </head>
 <body>
     <h1>Delete Student</h1>
-    <p>Are you sure you want to delete {{ student.name }}?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Delete</button>
-        <a href="{% url 'dashboard' %}">Cancel</a>
+        <label for="student_id">Enter Student ID:</label><br>
+        <input type="text" id="student_id" name="student_id" required><br>
+        <input type="submit" value="Delete">
     </form>
 </body>
 </html>

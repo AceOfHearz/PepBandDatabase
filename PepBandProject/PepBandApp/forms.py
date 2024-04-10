@@ -1,23 +1,36 @@
 from django import forms
-from django.core.validators import RegexValidator
-from .models import Instrument, Student
+from .models import Student, Instrument
 
 class StudentForm(forms.ModelForm):
-    phone_number = forms.CharField(validators=[RegexValidator(r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")])
-
     class Meta:
         model = Student
-        fields = ['name', 'email', 'phone_number']
-
-    def save(self, commit=True):
-        student = super().save(commit=commit)
-        return student
+        fields = ['name', 'student_id', 'email', 'phone_number']
 
 class InstrumentForm(forms.ModelForm):
     class Meta:
         model = Instrument
-        fields = ['name', 'serial_number', 'student']
+        fields = ['name', 'serial_number', 'assigned_student']
 
-    def save(self, commit=True):
-        instrument = super().save(commit=commit)
-        return instrument
+class AddStudentForm(forms.Form):
+    name = forms.CharField(label='Name', max_length=100)
+    student_id = forms.CharField(label='Student ID', max_length=100)
+    email = forms.EmailField(label='Email', max_length=100)
+    phone_number = forms.CharField(label='Phone Number', max_length=100)
+
+class DeleteStudentForm(forms.Form):
+    student_id = forms.CharField(label='Student ID', max_length=100)
+
+class AddInstrumentForm(forms.Form):
+    name = forms.CharField(label='Name', max_length=100)
+    serial_number = forms.CharField(label='Serial Number', max_length=100)
+    assigned_student = forms.CharField(label='Assigned Student', required=False)
+
+class DeleteInstrumentForm(forms.Form):
+    serial_number = forms.CharField(label='Serial Number', max_length=100)
+
+class AssignInstrumentForm(forms.Form):
+    student_id = forms.CharField(label='Student ID', max_length=100)
+    serial_number = forms.CharField(label='Serial Number', max_length=100)
+
+class UnassignInstrumentForm(forms.Form):
+    serial_number = forms.CharField(label='Serial Number', max_length=100)
